@@ -16,73 +16,72 @@ package org.fluentlenium.assertj.custom;
 
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.Condition;
 import org.fluentlenium.core.domain.FluentList;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FluentListAssert extends AbstractAssert<FluentListAssert, FluentList> {
     public FluentListAssert(FluentList<?> actual) {
         super(actual, FluentListAssert.class);
     }
 
-   /**
+    /**
      * check if at least one element of the FluentList contains the text
      *
      * @return
      */
-    public FluentListAssert hasText(String textToFind) {
-        List<String> actualTexts = actual.getTexts();
-        for(String text : actualTexts) {
-            if(text.contains(textToFind)){
-                return this;
+    public FluentListAssert hasText(final String textToFind) {
+        final List<String> actualTexts = actual.getTexts();
+        assertThat(actualTexts).as("No selected elements contains text: %s . Actual texts found : %s", textToFind, actualTexts).areAtLeastOne(new Condition<String>() {
+            @Override
+            public boolean matches(String value) {
+                return value.contains(textToFind);
             }
-        }
-        super.failWithMessage("No selected elements contains text: " + textToFind + " . Actual texts found : " + actualTexts);
+        });
         return this;
     }
 
-   /**
+    /**
      * check if at no element of the FluentList contains the text
      *
      * @return
      */
-    public FluentListAssert hasNotText(String textToFind) {
-        List<String> actualTexts = actual.getTexts();
-        for(String text : actualTexts) {
-            if(text.contains(textToFind)){
-                super.failWithMessage("At least one selected elements contains text: " + textToFind + " . Actual texts found : " + actualTexts);
+    public FluentListAssert hasNotText(final String textToFind) {
+        final List<String> actualTexts = actual.getTexts();
+        assertThat(actualTexts).as("At least one selected elements contains text: %s . Actual texts found : %s", textToFind, actualTexts).areExactly(0, new Condition<String>() {
+            @Override
+            public boolean matches(String value) {
+                return value.contains(textToFind);
             }
-        }
+        });
         return this;
     }
 
-	public FluentListAssert hasSize(int expectedSize) {
-		if(actual.size() != expectedSize) {
-			super.failWithMessage("Expected size: " + expectedSize + ". Actual size: " + actual.size() + ".");
-		}
-		return this;
-	}
-	
-	public FluentListSizeBuilder hasSize() {
-		return new FluentListSizeBuilder(actual.size(), this);
-	}
-	
-   /**
+    public FluentListAssert hasSize(int expectedSize) {
+        assertThat(actual).hasSize(expectedSize);
+        return this;
+    }
+
+    public FluentListSizeBuilder hasSize() {
+        return new FluentListSizeBuilder(actual.size(), this);
+    }
+
+    /**
      * check if an element of the FluentList has the id
      *
-	 * @param idToFind
+     * @param idToFind
      * @return
      */
-	public FluentListAssert hasId(String idToFind) {
-		List actualIds = actual.getIds();
-		if (!actualIds.contains(idToFind)) {
-			super.failWithMessage("No selected elements has id: " + idToFind + " . Actual texts found : " + actualIds);
-		}
-		return this;
-	}
+    public FluentListAssert hasId(String idToFind) {
+        assertThat(actual.getIds()).contains(idToFind);
+        return this;
+    }
 
-   /**
+    /**
      * check if at least one element of the FluentList contains the text
      *
      * @return
@@ -99,11 +98,11 @@ public class FluentListAssert extends AbstractAssert<FluentListAssert, FluentLis
         return this;
     }
 
-	/*
-	 * Used in FluentListSizeBuilder to raise AssertionError
-	 */
-	void internalFail(String reason) {
-		super.failWithMessage(reason);
-	}
+    /*
+     * Used in FluentListSizeBuilder to raise AssertionError
+     */
+    void internalFail(String reason) {
+        super.failWithMessage(reason);
+    }
 
 }
